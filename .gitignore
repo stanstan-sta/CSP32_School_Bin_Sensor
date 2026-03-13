@@ -1,0 +1,25 @@
+# PlatformIO
+.pio/
+.vscode/
+.idea/
+
+# Build artifacts
+*.o
+*.elf
+*.bin
+
+# Temporary files
+*~
+*.swp
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Configuration (may contain sensitive data)
+config_local.h
+secrets.h
+
+# Test results
+test_results/
