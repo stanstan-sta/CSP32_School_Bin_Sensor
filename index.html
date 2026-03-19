@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Citation Generator - No Signup Required</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6b46c1',
+                        'primary-dark': '#553c9a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; }
+        .hanging-indent { padding-left: 2rem; text-indent: -2rem; }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6b46c1;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .citation-item { transition: all 0.2s ease; }
+        .citation-item:hover { transform: translateX(4px); }
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white dark:bg-gray-800 shadow-sm transition-colors">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-primary dark:text-purple-400">Free Citation Generator</h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">100% Free, No Signup Required</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <select id="citationStyle" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="APA7">APA 7th Edition</option>
+                            <option value="MLA9">MLA 9th Edition</option>
+                            <option value="Chicago17">Chicago 17th (Notes & Bibliography)</option>
+                            <option value="Harvard">Harvard (Cite Them Right 12th)</option>
+                            <option value="Vancouver">Vancouver</option>
+                            <option value="IEEE">IEEE</option>
+                            <option value="OSCOLA">OSCOLA 4th</option>
+                            <option value="Turabian9">Turabian 9th</option>
+                        </select>
+                        <button id="darkModeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition" aria-label="Toggle dark mode">
+                            <svg class="w-6 h-6 text-gray-700 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path class="sun-icon" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div id="emptyState" class="text-center py-16 fade-in">
+                <svg class="w-24 h-24 mx-auto text-primary dark:text-purple-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Cite anything in seconds – completely free</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 mb-8">No signup, no limits, no paywall. Generate accurate citations instantly.</p>
+                <div class="flex justify-center gap-4 flex-wrap">
+                    <button onclick="app.quickStart('website')" class="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition">Cite a Website</button>
+                    <button onclick="app.quickStart('book')" class="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition">Cite a Book</button>
+                    <button onclick="app.quickStart('journal')" class="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition">Cite a Journal</button>
+                    <button onclick="app.addExamples()" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-semibold transition">Add Example Citations</button>
+                </div>
+            </div>
+
+            <div id="mainContent" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Input Form -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Quick Input (URL or ISBN)</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="quickInput" placeholder="Paste URL or ISBN to auto-detect..." class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <button id="detectButton" class="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition">Detect</button>
+                            </div>
+                            <div id="loadingIndicator" class="hidden mt-2 flex items-center gap-2 text-primary">
+                                <div class="loading-spinner"></div>
+                                <span>Fetching data...</span>
+                            </div>
+                            <div id="errorMessage" class="hidden mt-2 text-red-600 dark:text-red-400"></div>
+                        </div>
+
+                        <!-- Source Type Tabs -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+                            <nav class="flex gap-2 overflow-x-auto" id="sourceTabs">
+                                <button class="tab-button px-4 py-2 font-semibold transition border-b-2" data-type="website">Website</button>
+                                <button class="tab-button px-4 py-2 font-semibold transition border-b-2" data-type="book">Book</button>
+                                <button class="tab-button px-4 py-2 font-semibold transition border-b-2" data-type="journal">Journal Article</button>
+                                <button class="tab-button px-4 py-2 font-semibold transition border-b-2" data-type="newspaper">Newspaper</button>
+                                <button class="tab-button px-4 py-2 font-semibold transition border-b-2" data-type="report">Report</button>
+                                <button class="tab-button px-4 py-2 font-semibold transition border-b-2" data-type="chapter">Book Chapter</button>
+                                <button class="tab-button px-4 py-2 font-semibold transition border-b-2" data-type="other">Other</button>
+                            </nav>
+                        </div>
+
+                        <!-- Form Fields -->
+                        <form id="citationForm" class="space-y-4">
+                            <div id="formFields"></div>
+
+                            <div class="flex gap-3 pt-4">
+                                <button type="submit" class="flex-1 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                                    Add Citation
+                                </button>
+                                <button type="button" id="clearButton" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-semibold transition">
+                                    Clear
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Citations Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors sticky top-8">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Your Citations (<span id="citationCount">0</span>)</h3>
+
+                        <div id="citationsList" class="space-y-3 mb-6 max-h-96 overflow-y-auto"></div>
+
+                        <div class="space-y-2">
+                            <button onclick="app.exportBibliography('copy')" class="w-full px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition">Copy Bibliography</button>
+                            <button onclick="app.exportBibliography('txt')" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition">Download .txt</button>
+                            <button onclick="app.exportBibliography('bib')" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition">Download .bib</button>
+                            <button onclick="app.exportBibliography('ris')" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition">Download .ris</button>
+                            <button onclick="app.exportBibliography('docx')" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition">Export to Word</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div id="previewSection" class="hidden mt-8">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Live Preview</h3>
+
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">In-Text Citation Examples:</h4>
+                        <div id="inTextPreview" class="text-gray-600 dark:text-gray-400 space-y-1"></div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">Reference List:</h4>
+                        <div id="referencePreview" class="text-gray-600 dark:text-gray-400 space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 py-8 text-center text-sm text-gray-600 dark:text-gray-400">
+            <p>Free unlimited Cite This For Me clone – no paywall ❤️</p>
+        </footer>
+    </div>
+
+    <script>
+const app = {
+    citations: [],
+    currentType: 'website',
+    currentStyle: 'APA7',
+    editingIndex: -1,
+
+    init() {
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Event listeners
+        document.getElementById('darkModeToggle').addEventListener('click', () => this.toggleDarkMode());
+        document.getElementById('citationStyle').addEventListener('change', (e) => {
+            this.currentStyle = e.target.value;
+            this.updatePreview();
+        });
+        document.getElementById('detectButton').addEventListener('click', () => this.detectAndFetch());
+        document.getElementById('quickInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.detectAndFetch();
+        });
+        document.getElementById('citationForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.addCitation();
+        });
+        document.getElementById('clearButton').addEventListener('click', () => this.clearForm());
+
+        // Tab buttons
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.currentType = btn.dataset.type;
+                this.updateTabs();
+                this.renderForm();
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                this.addCitation();
+            }
+        });
+
+        this.updateTabs();
+        this.renderForm();
+    },
+
+    toggleDarkMode() {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+    },
+
+    quickStart(type) {
+        this.currentType = type;
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        this.updateTabs();
+        this.renderForm();
+    },
+
+    updateTabs() {
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            if (btn.dataset.type === this.currentType) {
+                btn.classList.add('border-primary', 'text-primary', 'dark:text-purple-400');
+                btn.classList.remove('border-transparent', 'text-gray-600', 'dark:text-gray-400');
+            } else {
+                btn.classList.remove('border-primary', 'text-primary', 'dark:text-purple-400');
+                btn.classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-200');
+            }
+        });
+    },
+
+    renderForm() {
+        const container = document.getElementById('formFields');
+        container.innerHTML = '';
+
+        const fields = this.getFieldsForType(this.currentType);
+
+        fields.forEach(field => {
+            const div = document.createElement('div');
+            div.className = 'space-y-2';
+
+            if (field.type === 'authors') {
+                div.innerHTML = `
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Authors</label>
+                    <div id="authorsContainer" class="space-y-2"></div>
+                    <button type="button" onclick="app.addAuthorField()" class="text-sm text-primary hover:text-primary-dark font-semibold">+ Add Author</button>
+                `;
+                container.appendChild(div);
+                this.addAuthorField(); // Add first author field
+            } else if (field.type === 'textarea') {
+                div.innerHTML = `
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">${field.label}</label>
+                    <textarea name="${field.name}" ${field.required ? 'required' : ''} rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="${field.placeholder || ''}"></textarea>
+                `;
+                container.appendChild(div);
+            } else {
+                div.innerHTML = `
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">${field.label}</label>
+                    <input type="${field.type || 'text'}" name="${field.name}" ${field.required ? 'required' : ''} class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="${field.placeholder || ''}">
+                `;
+                container.appendChild(div);
+            }
+        });
+    },
+
+    getFieldsForType(type) {
+        const common = [
+            { name: 'title', label: 'Title', required: true, placeholder: 'Enter title...' },
+        ];
+
+        const fields = {
+            website: [
+                { type: 'authors', name: 'authors', label: 'Authors' },
+                ...common,
+                { name: 'year', label: 'Year Published', placeholder: 'YYYY' },
+                { name: 'publisher', label: 'Website/Publisher', placeholder: 'e.g., BBC News' },
+                { name: 'url', label: 'URL', required: true, placeholder: 'https://...' },
+                { name: 'accessDate', label: 'Date Accessed', type: 'date', required: true },
+            ],
+            book: [
+                { type: 'authors', name: 'authors', label: 'Authors' },
+                ...common,
+                { name: 'year', label: 'Year Published', required: true, placeholder: 'YYYY' },
+                { name: 'publisher', label: 'Publisher', required: true, placeholder: 'Publisher name' },
+                { name: 'location', label: 'Publication Location', placeholder: 'City, State' },
+                { name: 'edition', label: 'Edition', placeholder: 'e.g., 2nd' },
+                { name: 'isbn', label: 'ISBN', placeholder: '978-...' },
+            ],
+            journal: [
+                { type: 'authors', name: 'authors', label: 'Authors' },
+                ...common,
+                { name: 'year', label: 'Year Published', required: true, placeholder: 'YYYY' },
+                { name: 'journal', label: 'Journal Name', required: true, placeholder: 'Journal title' },
+                { name: 'volume', label: 'Volume', placeholder: 'Volume number' },
+                { name: 'issue', label: 'Issue', placeholder: 'Issue number' },
+                { name: 'pages', label: 'Page Range', placeholder: 'e.g., 123-145' },
+                { name: 'doi', label: 'DOI', placeholder: '10.xxxx/xxxxx' },
+                { name: 'url', label: 'URL', placeholder: 'https://...' },
+            ],
+            newspaper: [
+                { type: 'authors', name: 'authors', label: 'Authors' },
+                ...common,
+                { name: 'year', label: 'Year Published', required: true, placeholder: 'YYYY' },
+                { name: 'month', label: 'Month', placeholder: 'Month name or number' },
+                { name: 'day', label: 'Day', placeholder: 'Day number' },
+                { name: 'newspaper', label: 'Newspaper Name', required: true, placeholder: 'Newspaper title' },
+                { name: 'pages', label: 'Page Range', placeholder: 'e.g., A1, A3' },
+                { name: 'url', label: 'URL', placeholder: 'https://...' },
+            ],
+            report: [
+                { type: 'authors', name: 'authors', label: 'Authors' },
+                ...common,
+                { name: 'year', label: 'Year Published', required: true, placeholder: 'YYYY' },
+                { name: 'institution', label: 'Institution/Organization', required: true, placeholder: 'Organization name' },
+                { name: 'reportNumber', label: 'Report Number', placeholder: 'Report no.' },
+                { name: 'url', label: 'URL', placeholder: 'https://...' },
+            ],
+            chapter: [
+                { type: 'authors', name: 'authors', label: 'Chapter Authors' },
+                { name: 'title', label: 'Chapter Title', required: true, placeholder: 'Chapter title' },
+                { type: 'editors', name: 'editors', label: 'Book Editors' },
+                { name: 'bookTitle', label: 'Book Title', required: true, placeholder: 'Book title' },
+                { name: 'year', label: 'Year Published', required: true, placeholder: 'YYYY' },
+                { name: 'publisher', label: 'Publisher', required: true, placeholder: 'Publisher name' },
+                { name: 'pages', label: 'Page Range', placeholder: 'e.g., 45-67' },
+            ],
+            other: [
+                { type: 'authors', name: 'authors', label: 'Authors/Creators' },
+                ...common,
+                { name: 'year', label: 'Year', placeholder: 'YYYY' },
+                { name: 'publisher', label: 'Publisher/Source', placeholder: 'Publisher or source' },
+                { name: 'url', label: 'URL', placeholder: 'https://...' },
+                { type: 'textarea', name: 'description', label: 'Additional Details', placeholder: 'Any additional information...' },
+            ],
+        };
+
+        return fields[type] || fields.other;
+    },
+
+    addAuthorField() {
+        const container = document.getElementById('authorsContainer');
+        const index = container.children.length;
+        const div = document.createElement('div');
+        div.className = 'flex gap-2';
+        div.innerHTML = `
+            <input type="text" name="authorFirst_${index}" placeholder="First Name" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent">
+            <input type="text" name="authorLast_${index}" placeholder="Last Name" class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent">
+            ${index > 0 ? '<button type="button" onclick="this.parentElement.remove()" class="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400">×</button>' : ''}
+        `;
+        container.appendChild(div);
+    },
+
+    async detectAndFetch() {
+        const input = document.getElementById('quickInput').value.trim();
+        if (!input) return;
+
+        const loading = document.getElementById('loadingIndicator');
+        const error = document.getElementById('errorMessage');
+        loading.classList.remove('hidden');
+        error.classList.add('hidden');
+
+        try {
+            // Detect URL
+            if (input.startsWith('http://') || input.startsWith('https://')) {
+                this.currentType = 'website';
+                this.updateTabs();
+                this.renderForm();
+                await this.fetchWebsiteData(input);
+            }
+            // Detect ISBN
+            else if (/^(97[89])?\d{9}[\dX]$/i.test(input.replace(/[-\s]/g, ''))) {
+                this.currentType = 'book';
+                this.updateTabs();
+                this.renderForm();
+                await this.fetchBookData(input.replace(/[-\s]/g, ''));
+            }
+            // Detect DOI
+            else if (input.startsWith('10.') && input.includes('/')) {
+                this.currentType = 'journal';
+                this.updateTabs();
+                this.renderForm();
+                await this.fetchDOIData(input);
+            }
+            else {
+                throw new Error('Unable to detect input type. Please enter a valid URL, ISBN, or DOI.');
+            }
+
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        } catch (err) {
+            error.textContent = err.message;
+            error.classList.remove('hidden');
+        } finally {
+            loading.classList.add('hidden');
+        }
+    },
+
+    async fetchWebsiteData(url) {
+        try {
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            const html = await response.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const title = doc.querySelector('title')?.textContent ||
+                         doc.querySelector('meta[property="og:title"]')?.content || '';
+            const author = doc.querySelector('meta[name="author"]')?.content || '';
+            const publisher = doc.querySelector('meta[property="og:site_name"]')?.content || new URL(url).hostname;
+            const date = doc.querySelector('meta[property="article:published_time"]')?.content || '';
+
+            const form = document.getElementById('citationForm');
+            if (title) form.querySelector('[name="title"]').value = title;
+            if (author) {
+                const names = author.split(' ');
+                const firstInput = form.querySelector('[name="authorFirst_0"]');
+                const lastInput = form.querySelector('[name="authorLast_0"]');
+                if (names.length >= 2) {
+                    firstInput.value = names[0];
+                    lastInput.value = names.slice(1).join(' ');
+                } else {
+                    lastInput.value = author;
+                }
+            }
+            if (publisher) form.querySelector('[name="publisher"]').value = publisher;
+            if (date) {
+                const year = new Date(date).getFullYear();
+                form.querySelector('[name="year"]').value = year;
+            }
+            form.querySelector('[name="url"]').value = url;
+            form.querySelector('[name="accessDate"]').value = new Date().toISOString().split('T')[0];
+        } catch (err) {
+            throw new Error('Failed to fetch website data. Please enter details manually.');
+        }
+    },
+
+    async fetchBookData(isbn) {
+        try {
+            const response = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+            if (!response.ok) throw new Error('ISBN not found');
+
+            const data = await response.json();
+            const form = document.getElementById('citationForm');
+
+            if (data.title) form.querySelector('[name="title"]').value = data.title;
+            if (data.publish_date) {
+                const year = data.publish_date.match(/\d{4}/)?.[0];
+                if (year) form.querySelector('[name="year"]').value = year;
+            }
+            if (data.publishers && data.publishers[0]) {
+                form.querySelector('[name="publisher"]').value = data.publishers[0];
+            }
+            if (data.publish_places && data.publish_places[0]) {
+                form.querySelector('[name="location"]').value = data.publish_places[0];
+            }
+            form.querySelector('[name="isbn"]').value = isbn;
+
+            // Fetch author details
+            if (data.authors && data.authors[0]) {
+                const authorKey = data.authors[0].key;
+                const authorResp = await fetch(`https://openlibrary.org${authorKey}.json`);
+                const authorData = await authorResp.json();
+                if (authorData.name) {
+                    const names = authorData.name.split(' ');
+                    const lastInput = form.querySelector('[name="authorLast_0"]');
+                    const firstInput = form.querySelector('[name="authorFirst_0"]');
+                    if (names.length >= 2) {
+                        firstInput.value = names[0];
+                        lastInput.value = names.slice(1).join(' ');
+                    } else {
+                        lastInput.value = authorData.name;
+                    }
+                }
+            }
+        } catch (err) {
+            throw new Error('ISBN not found. Please enter details manually.');
+        }
+    },
+
+    async fetchDOIData(doi) {
+        try {
+            const response = await fetch(`https://api.crossref.org/works/${doi}`);
+            if (!response.ok) throw new Error('DOI not found');
+
+            const data = await response.json();
+            const work = data.message;
+            const form = document.getElementById('citationForm');
+
+            if (work.title && work.title[0]) {
+                form.querySelector('[name="title"]').value = work.title[0];
+            }
+            if (work.published && work.published['date-parts'] && work.published['date-parts'][0]) {
+                form.querySelector('[name="year"]').value = work.published['date-parts'][0][0];
+            }
+            if (work['container-title'] && work['container-title'][0]) {
+                form.querySelector('[name="journal"]').value = work['container-title'][0];
+            }
+            if (work.volume) form.querySelector('[name="volume"]').value = work.volume;
+            if (work.issue) form.querySelector('[name="issue"]').value = work.issue;
+            if (work.page) form.querySelector('[name="pages"]').value = work.page;
+            form.querySelector('[name="doi"]').value = doi;
+
+            // Authors
+            if (work.author && work.author.length > 0) {
+                const authorsContainer = document.getElementById('authorsContainer');
+                authorsContainer.innerHTML = '';
+                work.author.slice(0, 5).forEach((author, idx) => {
+                    this.addAuthorField();
+                    if (author.given) {
+                        form.querySelector(`[name="authorFirst_${idx}"]`).value = author.given;
+                    }
+                    if (author.family) {
+                        form.querySelector(`[name="authorLast_${idx}"]`).value = author.family;
+                    }
+                });
+            }
+        } catch (err) {
+            throw new Error('DOI not found. Please enter details manually.');
+        }
+    },
+
+    clearForm() {
+        document.getElementById('citationForm').reset();
+        document.getElementById('quickInput').value = '';
+        document.getElementById('errorMessage').classList.add('hidden');
+        this.editingIndex = -1;
+
+        // Reset to single author field
+        const authorsContainer = document.getElementById('authorsContainer');
+        if (authorsContainer) {
+            authorsContainer.innerHTML = '';
+            this.addAuthorField();
+        }
+    },
+
+    addCitation() {
+        const form = document.getElementById('citationForm');
+        const formData = new FormData(form);
+
+        const citation = {
+            type: this.currentType,
+            authors: [],
+        };
+
+        // Collect authors
+        let authorIndex = 0;
+        while (formData.has(`authorFirst_${authorIndex}`) || formData.has(`authorLast_${authorIndex}`)) {
+            const first = formData.get(`authorFirst_${authorIndex}`) || '';
+            const last = formData.get(`authorLast_${authorIndex}`) || '';
+            if (first || last) {
+                citation.authors.push({ first: first.trim(), last: last.trim() });
+            }
+            authorIndex++;
+        }
+
+        // Collect other fields
+        for (let [key, value] of formData.entries()) {
+            if (!key.startsWith('authorFirst_') && !key.startsWith('authorLast_')) {
+                citation[key] = value.trim();
+            }
+        }
+
+        if (this.editingIndex >= 0) {
+            this.citations[this.editingIndex] = citation;
+            this.editingIndex = -1;
+        } else {
+            this.citations.push(citation);
+        }
+
+        this.updateCitationsList();
+        this.updatePreview();
+        this.clearForm();
+    },
+
+    updateCitationsList() {
+        const container = document.getElementById('citationsList');
+        const count = document.getElementById('citationCount');
+
+        count.textContent = this.citations.length;
+
+        if (this.citations.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm">No citations yet</p>';
+            document.getElementById('previewSection').classList.add('hidden');
+            return;
+        }
+
+        document.getElementById('previewSection').classList.remove('hidden');
+
+        container.innerHTML = this.citations.map((citation, index) => {
+            const preview = this.formatCitation(citation, this.currentStyle).substring(0, 60) + '...';
+            return `
+                <div class="citation-item p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-move">
+                    <div class="flex items-start gap-2">
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-700 dark:text-gray-300">${preview}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${citation.type}</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="app.editCitation(${index})" class="p-1 text-primary hover:text-primary-dark" title="Edit">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="app.deleteCitation(${index})" class="p-1 text-red-600 hover:text-red-700 dark:text-red-400" title="Delete">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+
+    editCitation(index) {
+        const citation = this.citations[index];
+        this.editingIndex = index;
+        this.currentType = citation.type;
+        this.updateTabs();
+        this.renderForm();
+
+        // Populate form
+        const form = document.getElementById('citationForm');
+        setTimeout(() => {
+            // Fill in authors
+            if (citation.authors && citation.authors.length > 0) {
+                const authorsContainer = document.getElementById('authorsContainer');
+                authorsContainer.innerHTML = '';
+                citation.authors.forEach((author, idx) => {
+                    this.addAuthorField();
+                    if (author.first) form.querySelector(`[name="authorFirst_${idx}"]`).value = author.first;
+                    if (author.last) form.querySelector(`[name="authorLast_${idx}"]`).value = author.last;
+                });
+            }
+
+            // Fill in other fields
+            Object.keys(citation).forEach(key => {
+                if (key !== 'type' && key !== 'authors') {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) input.value = citation[key];
+                }
+            });
+        }, 100);
+    },
+
+    deleteCitation(index) {
+        if (confirm('Delete this citation?')) {
+            this.citations.splice(index, 1);
+            this.updateCitationsList();
+            this.updatePreview();
+        }
+    },
+
+    updatePreview() {
+        const inTextContainer = document.getElementById('inTextPreview');
+        const refContainer = document.getElementById('referencePreview');
+
+        if (this.citations.length === 0) {
+            inTextContainer.innerHTML = '<p class="text-gray-500">Add citations to see preview</p>';
+            refContainer.innerHTML = '<p class="text-gray-500">Add citations to see preview</p>';
+            return;
+        }
+
+        // In-text citations
+        const inTextExamples = this.citations.slice(0, 3).map(citation =>
+            this.formatInText(citation, this.currentStyle)
+        );
+        inTextContainer.innerHTML = inTextExamples.map(text =>
+            `<p class="text-gray-700 dark:text-gray-300">${text}</p>`
+        ).join('');
+
+        // Reference list
+        const references = this.citations.map(citation =>
+            this.formatCitation(citation, this.currentStyle)
+        );
+        refContainer.innerHTML = references.map(ref =>
+            `<p class="hanging-indent text-gray-700 dark:text-gray-300">${ref}</p>`
+        ).join('');
+    },
+
+    formatInText(citation, style) {
+        const authors = citation.authors || [];
+        const year = citation.year || 'n.d.';
+
+        if (authors.length === 0) {
+            const title = citation.title ? citation.title.substring(0, 20) + '...' : 'Unknown';
+            return `According to "${title}" (${year})...`;
+        }
+
+        const firstAuthor = authors[0];
+        const lastName = firstAuthor.last || firstAuthor.first || 'Unknown';
+
+        switch (style) {
+            case 'APA7':
+                if (authors.length === 1) {
+                    return `According to ${lastName} (${year})...`;
+                } else if (authors.length === 2) {
+                    return `According to ${lastName} and ${authors[1].last || authors[1].first} (${year})...`;
+                } else {
+                    return `According to ${lastName} et al. (${year})...`;
+                }
+
+            case 'MLA9':
+                if (authors.length === 1) {
+                    return `According to ${lastName}...`;
+                } else if (authors.length === 2) {
+                    return `According to ${lastName} and ${authors[1].last || authors[1].first}...`;
+                } else {
+                    return `According to ${lastName} et al....`;
+                }
+
+            case 'Chicago17':
+                if (authors.length === 1) {
+                    return `As ${lastName} argues...`;
+                } else if (authors.length === 2) {
+                    return `As ${lastName} and ${authors[1].last || authors[1].first} argue...`;
+                } else {
+                    return `As ${lastName} et al. argue...`;
+                }
+
+            case 'Harvard':
+                if (authors.length === 1) {
+                    return `${lastName} (${year}) states that...`;
+                } else if (authors.length === 2) {
+                    return `${lastName} and ${authors[1].last || authors[1].first} (${year}) state that...`;
+                } else {
+                    return `${lastName} et al. (${year}) state that...`;
+                }
+
+            case 'Vancouver':
+                return `According to reference [${this.citations.indexOf(citation) + 1}]...`;
+
+            case 'IEEE':
+                return `According to [${this.citations.indexOf(citation) + 1}]...`;
+
+            default:
+                return `According to ${lastName} (${year})...`;
+        }
+    },
+
+    formatCitation(citation, style) {
+        const formatters = {
+            'APA7': this.formatAPA7,
+            'MLA9': this.formatMLA9,
+            'Chicago17': this.formatChicago17,
+            'Harvard': this.formatHarvard,
+            'Vancouver': this.formatVancouver,
+            'IEEE': this.formatIEEE,
+            'OSCOLA': this.formatOSCOLA,
+            'Turabian9': this.formatTurabian9,
+        };
+
+        const formatter = formatters[style] || formatters['APA7'];
+        return formatter.call(this, citation);
+    },
+
+    formatAuthors(authors, style, maxAuthors = 20) {
+        if (!authors || authors.length === 0) return '';
+
+        const formatAuthor = (author, isFirst = false) => {
+            const first = author.first || '';
+            const last = author.last || '';
+
+            switch (style) {
+                case 'APA7':
+                case 'Harvard':
+                    return last ? `${last}, ${first.charAt(0)}.${first.split(' ').length > 1 ? ' ' + first.split(' ')[1].charAt(0) + '.' : ''}`.trim() : first;
+                case 'MLA9':
+                    return isFirst ? (last ? `${last}, ${first}` : first) : (last ? `${first} ${last}` : first);
+                case 'Chicago17':
+                case 'Turabian9':
+                    return isFirst ? (last ? `${last}, ${first}` : first) : (last ? `${first} ${last}` : first);
+                case 'Vancouver':
+                case 'IEEE':
+                    return last ? `${last} ${first.charAt(0)}${first.split(' ').length > 1 ? first.split(' ')[1].charAt(0) : ''}`.trim() : first;
+                default:
+                    return last ? `${last}, ${first}` : first;
+            }
+        };
+
+        if (authors.length === 1) {
+            return formatAuthor(authors[0], true);
+        } else if (authors.length === 2) {
+            return `${formatAuthor(authors[0], true)} and ${formatAuthor(authors[1])}`;
+        } else if (authors.length <= maxAuthors) {
+            const formatted = authors.map((a, i) => formatAuthor(a, i === 0));
+            return formatted.slice(0, -1).join(', ') + ', and ' + formatted[formatted.length - 1];
+        } else {
+            return `${formatAuthor(authors[0], true)} et al.`;
+        }
+    },
+
+    formatAPA7(citation) {
+        let result = '';
+
+        // Authors
+        if (citation.authors && citation.authors.length > 0) {
+            result += this.formatAuthors(citation.authors, 'APA7', 20);
+        } else {
+            result += citation.publisher || 'Unknown';
+        }
+
+        // Year
+        result += ` (${citation.year || 'n.d.'}).`;
+
+        // Title
+        if (citation.type === 'book' || citation.type === 'report') {
+            result += ` <em>${citation.title}</em>`;
+            if (citation.edition) result += ` (${citation.edition} ed.)`;
+            result += '.';
+        } else {
+            result += ` ${citation.title}.`;
+        }
+
+        // Source-specific formatting
+        if (citation.type === 'journal') {
+            if (citation.journal) {
+                result += ` <em>${citation.journal}</em>`;
+                if (citation.volume) result += `, ${citation.volume}`;
+                if (citation.issue) result += `(${citation.issue})`;
+                if (citation.pages) result += `, ${citation.pages}`;
+                result += '.';
+            }
+            if (citation.doi) {
+                result += ` https://doi.org/${citation.doi}`;
+            } else if (citation.url) {
+                result += ` ${citation.url}`;
+            }
+        } else if (citation.type === 'website') {
+            if (citation.publisher) result += ` ${citation.publisher}.`;
+            if (citation.url) result += ` ${citation.url}`;
+        } else if (citation.type === 'book') {
+            if (citation.publisher) {
+                result += ` ${citation.publisher}`;
+            }
+            result += '.';
+        } else if (citation.type === 'newspaper') {
+            if (citation.newspaper) result += ` <em>${citation.newspaper}</em>.`;
+            if (citation.url) result += ` ${citation.url}`;
+        }
+
+        return result;
+    },
+
+    formatMLA9(citation) {
+        let result = '';
+
+        // Authors
+        if (citation.authors && citation.authors.length > 0) {
+            result += this.formatAuthors(citation.authors, 'MLA9', 3);
+            result += '.';
+        }
+
+        // Title
+        if (citation.type === 'book') {
+            result += ` <em>${citation.title}</em>.`;
+        } else if (citation.type === 'journal') {
+            result += ` "${citation.title}."`;
+        } else {
+            result += ` "${citation.title}."`;
+        }
+
+        // Container
+        if (citation.type === 'journal' && citation.journal) {
+            result += ` <em>${citation.journal}</em>`;
+            if (citation.volume) result += `, vol. ${citation.volume}`;
+            if (citation.issue) result += `, no. ${citation.issue}`;
+            if (citation.year) result += `, ${citation.year}`;
+            if (citation.pages) result += `, pp. ${citation.pages}`;
+            result += '.';
+        } else if (citation.type === 'website') {
+            if (citation.publisher) result += ` <em>${citation.publisher}</em>,`;
+            if (citation.year) result += ` ${citation.year},`;
+            if (citation.url) result += ` ${citation.url}.`;
+        } else if (citation.type === 'book') {
+            if (citation.publisher) result += ` ${citation.publisher},`;
+            if (citation.year) result += ` ${citation.year}.`;
+        }
+
+        // Access date for online sources
+        if (citation.accessDate && (citation.type === 'website' || citation.url)) {
+            result += ` Accessed ${new Date(citation.accessDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}.`;
+        }
+
+        return result;
+    },
+
+    formatChicago17(citation) {
+        let result = '';
+
+        // Authors
+        if (citation.authors && citation.authors.length > 0) {
+            result += this.formatAuthors(citation.authors, 'Chicago17', 10);
+            result += '.';
+        }
+
+        // Title
+        if (citation.type === 'book') {
+            result += ` <em>${citation.title}</em>.`;
+        } else if (citation.type === 'journal') {
+            result += ` "${citation.title}."`;
+        } else {
+            result += ` "${citation.title}."`;
+        }
+
+        // Publication info
+        if (citation.type === 'journal' && citation.journal) {
+            result += ` <em>${citation.journal}</em>`;
+            if (citation.volume) result += ` ${citation.volume}`;
+            if (citation.issue) result += `, no. ${citation.issue}`;
+            if (citation.year) result += ` (${citation.year})`;
+            if (citation.pages) result += `: ${citation.pages}`;
+            result += '.';
+        } else if (citation.type === 'book') {
+            if (citation.location) result += ` ${citation.location}:`;
+            if (citation.publisher) result += ` ${citation.publisher},`;
+            if (citation.year) result += ` ${citation.year}.`;
+        } else if (citation.type === 'website') {
+            if (citation.publisher) result += ` ${citation.publisher}.`;
+            if (citation.year) result += ` ${citation.year}.`;
+            if (citation.url) result += ` ${citation.url}.`;
+        }
+
+        return result;
+    },
+
+    formatHarvard(citation) {
+        let result = '';
+
+        // Authors
+        if (citation.authors && citation.authors.length > 0) {
+            result += this.formatAuthors(citation.authors, 'Harvard', 3);
+        } else {
+            result += citation.publisher || 'Unknown';
+        }
+
+        // Year
+        result += ` (${citation.year || 'n.d.'})`;
+
+        // Title
+        if (citation.type === 'book') {
+            result += ` <em>${citation.title}</em>.`;
+        } else if (citation.type === 'journal') {
+            result += ` '${citation.title}',`;
+        } else {
+            result += ` <em>${citation.title}</em>.`;
+        }
+
+        // Publication details
+        if (citation.type === 'journal' && citation.journal) {
+            result += ` <em>${citation.journal}</em>`;
+            if (citation.volume) result += `, ${citation.volume}`;
+            if (citation.issue) result += `(${citation.issue})`;
+            if (citation.pages) result += `, pp. ${citation.pages}`;
+            result += '.';
+        } else if (citation.type === 'book') {
+            if (citation.edition) result += ` ${citation.edition} edn.`;
+            if (citation.location) result += ` ${citation.location}:`;
+            if (citation.publisher) result += ` ${citation.publisher}.`;
+        } else if (citation.type === 'website') {
+            result += ` Available at: ${citation.url || 'URL'}`;
+            if (citation.accessDate) {
+                result += ` (Accessed: ${new Date(citation.accessDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })})`;
+            }
+            result += '.';
+        }
+
+        return result;
+    },
+
+    formatVancouver(citation) {
+        const index = this.citations.indexOf(citation) + 1;
+        let result = `${index}. `;
+
+        // Authors
+        if (citation.authors && citation.authors.length > 0) {
+            result += this.formatAuthors(citation.authors, 'Vancouver', 6);
+            result += '.';
+        }
+
+        // Title
+        result += ` ${citation.title}.`;
+
+        // Source
+        if (citation.type === 'journal' && citation.journal) {
+            result += ` ${citation.journal}.`;
+            if (citation.year) result += ` ${citation.year}`;
+            if (citation.volume) result += `;${citation.volume}`;
+            if (citation.issue) result += `(${citation.issue})`;
+            if (citation.pages) result += `:${citation.pages}`;
+            result += '.';
+        } else if (citation.type === 'book') {
+            if (citation.location) result += ` ${citation.location}:`;
+            if (citation.publisher) result += ` ${citation.publisher};`;
+            if (citation.year) result += ` ${citation.year}.`;
+        } else if (citation.type === 'website') {
+            if (citation.url) result += ` Available from: ${citation.url}`;
+        }
+
+        return result;
+    },
+
+    formatIEEE(citation) {
+        const index = this.citations.indexOf(citation) + 1;
+        let result = `[${index}] `;
+
+        // Authors
+        if (citation.authors && citation.authors.length > 0) {
+            result += this.formatAuthors(citation.authors, 'IEEE', 6);
+            result += ',';
+        }
+
+        // Title
+        result += ` "${citation.title},"`;
+
+        // Source
+        if (citation.type === 'journal' && citation.journal) {
+            result += ` <em>${citation.journal}</em>`;
+            if (citation.volume) result += `, vol. ${citation.volume}`;
+            if (citation.issue) result += `, no. ${citation.issue}`;
+            if (citation.pages) result += `, pp. ${citation.pages}`;
+            if (citation.year) result += `, ${citation.year}`;
+            result += '.';
+        } else if (citation.type === 'book') {
+            if (citation.location) result += ` ${citation.location}:`;
+            if (citation.publisher) result += ` ${citation.publisher},`;
+            if (citation.year) result += ` ${citation.year}.`;
+        } else if (citation.type === 'website') {
+            if (citation.url) result += ` [Online]. Available: ${citation.url}`;
+            if (citation.accessDate) {
+                result += `. [Accessed: ${new Date(citation.accessDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}]`;
+            }
+        }
+
+        return result;
+    },
+
+    formatOSCOLA(citation) {
+        let result = '';
+
+        // Authors
+        if (citation.authors && citation.authors.length > 0) {
+            const authors = citation.authors.map(a => {
+                const first = a.first || '';
+                const last = a.last || '';
+                return first ? `${first.charAt(0)} ${last}` : last;
+            });
+            result += authors.join(', ');
+        }
+
+        // Title
+        if (citation.type === 'book') {
+            result += `, <em>${citation.title}</em>`;
+        } else if (citation.type === 'journal') {
+            result += `, '${citation.title}'`;
+        } else {
+            result += `, '${citation.title}'`;
+        }
+
+        // Publication details
+        if (citation.type === 'journal' && citation.journal) {
+            if (citation.year) result += ` (${citation.year})`;
+            if (citation.volume) result += ` ${citation.volume}`;
+            result += ` <em>${citation.journal}</em>`;
+            if (citation.pages) result += ` ${citation.pages}`;
+        } else if (citation.type === 'book') {
+            if (citation.publisher) result += ` (${citation.publisher}`;
+            if (citation.year) result += ` ${citation.year})`;
+            else result += ')';
+        } else if (citation.type === 'website') {
+            if (citation.url) result += ` &lt;${citation.url}&gt;`;
+            if (citation.accessDate) {
+                result += ` accessed ${new Date(citation.accessDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+            }
+        }
+
+        return result;
+    },
+
+    formatTurabian9(citation) {
+        return this.formatChicago17(citation); // Turabian is based on Chicago
+    },
+
+    addExamples() {
+        this.citations = [
+            {
+                type: 'book',
+                authors: [{first: 'Jane', last: 'Smith'}],
+                title: 'The Art of Academic Writing',
+                year: '2023',
+                publisher: 'University Press',
+                location: 'New York',
+                isbn: '9780123456789'
+            },
+            {
+                type: 'journal',
+                authors: [{first: 'John', last: 'Doe'}, {first: 'Maria', last: 'Garcia'}],
+                title: 'Advances in Citation Management',
+                year: '2024',
+                journal: 'Journal of Academic Research',
+                volume: '15',
+                issue: '3',
+                pages: '245-267',
+                doi: '10.1234/jar.2024.001'
+            },
+            {
+                type: 'website',
+                authors: [{first: 'Sarah', last: 'Johnson'}],
+                title: 'How to Cite Sources Properly',
+                year: '2024',
+                publisher: 'Academic Writing Hub',
+                url: 'https://example.com/citation-guide',
+                accessDate: new Date().toISOString().split('T')[0]
+            }
+        ];
+
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        this.updateCitationsList();
+        this.updatePreview();
+    },
+
+    exportBibliography(format) {
+        if (this.citations.length === 0) {
+            alert('Add citations first!');
+            return;
+        }
+
+        switch (format) {
+            case 'copy':
+                this.copyToClipboard();
+                break;
+            case 'txt':
+                this.downloadText();
+                break;
+            case 'bib':
+                this.downloadBibTeX();
+                break;
+            case 'ris':
+                this.downloadRIS();
+                break;
+            case 'docx':
+                this.downloadWord();
+                break;
+        }
+    },
+
+    copyToClipboard() {
+        const references = this.citations.map(c => this.formatCitation(c, this.currentStyle));
+        const text = references.join('\n\n');
+
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Bibliography copied to clipboard!');
+        }).catch(err => {
+            alert('Failed to copy: ' + err);
+        });
+    },
+
+    downloadText() {
+        const references = this.citations.map(c => this.formatCitation(c, this.currentStyle));
+        const text = `Bibliography (${this.currentStyle})\n\n` + references.join('\n\n');
+
+        this.downloadFile(text, 'bibliography.txt', 'text/plain');
+    },
+
+    downloadBibTeX() {
+        const bibtex = this.citations.map((citation, index) => {
+            const type = citation.type === 'journal' ? 'article' : citation.type === 'book' ? 'book' : 'misc';
+            const key = `citation${index + 1}`;
+
+            let entry = `@${type}{${key},\n`;
+            if (citation.authors && citation.authors.length > 0) {
+                const authors = citation.authors.map(a => `${a.last}, ${a.first}`).join(' and ');
+                entry += `  author = {${authors}},\n`;
+            }
+            if (citation.title) entry += `  title = {${citation.title}},\n`;
+            if (citation.year) entry += `  year = {${citation.year}},\n`;
+            if (citation.publisher) entry += `  publisher = {${citation.publisher}},\n`;
+            if (citation.journal) entry += `  journal = {${citation.journal}},\n`;
+            if (citation.volume) entry += `  volume = {${citation.volume}},\n`;
+            if (citation.issue) entry += `  number = {${citation.issue}},\n`;
+            if (citation.pages) entry += `  pages = {${citation.pages}},\n`;
+            if (citation.doi) entry += `  doi = {${citation.doi}},\n`;
+            if (citation.url) entry += `  url = {${citation.url}},\n`;
+            entry += '}\n';
+
+            return entry;
+        }).join('\n');
+
+        this.downloadFile(bibtex, 'bibliography.bib', 'text/plain');
+    },
+
+    downloadRIS() {
+        const ris = this.citations.map(citation => {
+            const typeMap = {
+                'journal': 'JOUR',
+                'book': 'BOOK',
+                'website': 'ELEC',
+                'newspaper': 'NEWS',
+                'report': 'RPRT',
+                'chapter': 'CHAP'
+            };
+            const type = typeMap[citation.type] || 'GEN';
+
+            let entry = `TY  - ${type}\n`;
+            if (citation.authors) {
+                citation.authors.forEach(a => {
+                    entry += `AU  - ${a.last}, ${a.first}\n`;
+                });
+            }
+            if (citation.title) entry += `TI  - ${citation.title}\n`;
+            if (citation.year) entry += `PY  - ${citation.year}\n`;
+            if (citation.publisher) entry += `PB  - ${citation.publisher}\n`;
+            if (citation.journal) entry += `JO  - ${citation.journal}\n`;
+            if (citation.volume) entry += `VL  - ${citation.volume}\n`;
+            if (citation.issue) entry += `IS  - ${citation.issue}\n`;
+            if (citation.pages) entry += `SP  - ${citation.pages.split('-')[0]}\n`;
+            if (citation.doi) entry += `DO  - ${citation.doi}\n`;
+            if (citation.url) entry += `UR  - ${citation.url}\n`;
+            entry += 'ER  - \n';
+
+            return entry;
+        }).join('\n');
+
+        this.downloadFile(ris, 'bibliography.ris', 'application/x-research-info-systems');
+    },
+
+    async downloadWord() {
+        const references = this.citations.map(c => this.formatCitation(c, this.currentStyle));
+        const html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+            <head><meta charset="utf-8"><title>Bibliography</title></head>
+            <body>
+                <h1>Bibliography (${this.currentStyle})</h1>
+                ${references.map(ref => `<p style="margin-left:40px; text-indent:-40px;">${ref}</p>`).join('')}
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([html], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'bibliography.doc';
+        a.click();
+        URL.revokeObjectURL(url);
+    },
+
+    downloadFile(content, filename, type) {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+};
+
+// Initialize app on load
+document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
