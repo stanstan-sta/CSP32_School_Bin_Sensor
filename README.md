@@ -1,2 +1,1 @@
-# CSP32_School_Bin_Sensor
-C = Cheap
+This is the source code of the bin sensor. 
